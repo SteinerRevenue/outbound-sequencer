@@ -1,0 +1,17 @@
+CREATE TABLE IF NOT EXISTS boxes(email TEXT PRIMARY KEY, lane TEXT, warm_only INT DEFAULT 0, start TEXT, ramp_step INT DEFAULT 0, step_days INT DEFAULT 0, paused_until TEXT, pause_reason TEXT, cold_off INT DEFAULT 0, strikes TEXT DEFAULT '[]', parked INT DEFAULT 0, poll_since INT DEFAULT 0, sent_folder TEXT, spam_folder TEXT, last_send_at INT DEFAULT 0, last_acct_check INT DEFAULT 0);
+CREATE TABLE IF NOT EXISTS tokens(k TEXT PRIMARY KEY, access TEXT, exp INT);
+CREATE TABLE IF NOT EXISTS prospects(email TEXT PRIMARY KEY, lane TEXT, batch TEXT, company TEXT, tz TEXT, mx TEXT, verify TEXT, verified_at TEXT, status TEXT, box TEXT, step INT DEFAULT 0, nsteps INT DEFAULT 1, next_due TEXT, resume_date TEXT, thread_mid TEXT, last_inbound_mid TEXT, soft_bounces INT DEFAULT 0, note TEXT, created_at TEXT, status_at TEXT);
+CREATE TABLE IF NOT EXISTS steps(email TEXT, step INT, subject TEXT, body TEXT, PRIMARY KEY(email, step));
+CREATE TABLE IF NOT EXISTS attempts(key TEXT PRIMARY KEY, email TEXT, step INT, kind TEXT, box TEXT, status TEXT, claimed_at INT, sent_at TEXT, message_id TEXT, error TEXT, slot_id INT, subject TEXT);
+CREATE TABLE IF NOT EXISTS sends(id INTEGER PRIMARY KEY AUTOINCREMENT, box TEXT, to_addr TEXT, at INT, kind TEXT, et_day TEXT);
+CREATE TABLE IF NOT EXISTS slots(id INTEGER PRIMARY KEY AUTOINCREMENT, et_day TEXT, box TEXT, email TEXT, step INT, kind TEXT, due_at INT, status TEXT DEFAULT 'pending', ref TEXT);
+CREATE TABLE IF NOT EXISTS inbound(mid TEXT PRIMARY KEY, box TEXT, from_addr TEXT, subject TEXT, kind TEXT, at INT, detail TEXT);
+CREATE TABLE IF NOT EXISTS suppression(email TEXT PRIMARY KEY, reason TEXT, at TEXT, until TEXT);
+CREATE TABLE IF NOT EXISTS events(id INTEGER PRIMARY KEY AUTOINCREMENT, at INT, kind TEXT, box TEXT, target TEXT, detail TEXT, alert INT DEFAULT 0);
+CREATE TABLE IF NOT EXISTS seeds(id INTEGER PRIMARY KEY AUTOINCREMENT, box TEXT, seed TEXT, subject TEXT, sent_at INT, placement TEXT, checked_at INT);
+CREATE TABLE IF NOT EXISTS box_creds(email TEXT PRIMARY KEY, refresh_token TEXT, account_id TEXT, added_at TEXT, app TEXT);
+CREATE TABLE IF NOT EXISTS kv(k TEXT PRIMARY KEY, v TEXT);
+CREATE INDEX IF NOT EXISTS ix_sends_box ON sends(box, at);
+CREATE INDEX IF NOT EXISTS ix_slots_day ON slots(et_day, status);
+CREATE INDEX IF NOT EXISTS ix_events_at ON events(at);
+INSERT OR IGNORE INTO kv VALUES('lock','0'),('kill','not armed yet'),('mode','dry'),('live_version',''),('ms_open','0'),('last_rollover',''),('last_digest',''),('oauth_hits','[]'),('mode_alerted','');
